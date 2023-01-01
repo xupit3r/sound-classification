@@ -1,5 +1,5 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
+# Byte-compiled / optimized / DLL files
 *.py[cod]
 *$py.class
 
@@ -100,3 +100,6 @@ ENV/
 
 # directory for our saved models
 .models
+
+# a directory containing binary datasets
+.cached_datasets
