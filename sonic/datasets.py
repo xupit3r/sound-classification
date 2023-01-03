@@ -65,10 +65,13 @@ def build_urban_sounds(height=173, width=40):
   for pair in info:
     x.append(sound_files[pair[0]])
     y.append(to_one_hot(pair[1], num_classes))
-  
+
   x = np.array(x)
   x = x.reshape(x.shape[0], x.shape[1], x.shape[2], 1)
   y = np.array(y)
+
+  print(f'x shape {x.shape}')
+  print(f'y shape {y.shape}')
 
   # save these out to the filesystem for reuse
   np.savez(f'{BINARY_OUTPUT}/urban_sounds.npz', x, y)
@@ -86,4 +89,4 @@ def get_urban_sounds():
     y = npz['arr_1']
     train_x, test_x, train_y, test_y = train_test_split(x, y, test_size=0.2, random_state=42)
 
-    return (train_x, train_y), (test_x, test_y), class_names
+    return ((train_x, train_y), (test_x, test_y), class_names)
