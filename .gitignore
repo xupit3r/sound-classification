@@ -103,3 +103,6 @@ ENV/
 
 # a directory containing binary datasets
 .cached_datasets
+
+# ignore our test data directory
+.test_data

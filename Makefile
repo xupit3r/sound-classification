@@ -4,5 +4,8 @@ init:
 train:
 	TF_CPP_MIN_LOG_LEVEL=3 python3 sound.py
 
+sandbox:
+	TF_CPP_MIN_LOG_LEVEL=3 python3 sandbox.py
+
 build_datasets:
 	TF_CPP_MIN_LOG_LEVEL=3 python3 build_datasets.py

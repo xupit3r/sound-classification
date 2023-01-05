@@ -5,3 +5,5 @@ python-dotenv
 librosa
 opencv-python-headless
 scikit-learn
+scipy
+playsound
