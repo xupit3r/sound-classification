@@ -1,9 +1,9 @@
 import os
 import numpy as np
-from scipy.io import wavfile
+import soundfile as sf
 
 def segment_audio(sound_file='', seconds_per_segment=1, write_files=False, segments_dir=''):
-  sample_rate, signal = wavfile.read(sound_file)
+  signal, sample_rate = sf.read(sound_file)
   signal = signal / (2**15)
   signal_length = len(signal)
   segment_size = seconds_per_segment * sample_rate
@@ -12,10 +12,10 @@ def segment_audio(sound_file='', seconds_per_segment=1, write_files=False, segme
   if write_files:
     base_name = os.path.splitext(os.path.basename(sound_file))[0]
     for step, segment in enumerate(segments):
-      wavfile.write(
+      sf.write(
         f'{segments_dir}/{base_name}_{segment_size * step}_{segment_size * (step + 1)}.wav',
-        sample_rate,
-        segment
+        segment,
+        sample_rate
       )
   
   return segments, sample_rate
@@ -28,6 +28,6 @@ def remove_silence(segments, sample_rate, outfile=''):
   cleaned_signal = np.concatenate(segments_to_keep)
 
   if len(outfile):
-    wavfile.write(outfile, sample_rate, cleaned_signal)
+    sf.write(outfile, cleaned_signal, sample_rate)
 
   return cleaned_signal

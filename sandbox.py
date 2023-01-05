@@ -1,5 +1,5 @@
 from sonic.preprocess import segment_audio, remove_silence
-from playsound import playsound
+import matplotlib.pyplot as plt
 import os
 
 SOUND_FILES = '.test_data/sound'
@@ -23,5 +23,6 @@ cleaned_signal = remove_silence(
   outfile=f'{SOUND_FILES}/obama-silenced-removed.wav'
 )
 
-playsound(f'{SOUND_FILES}/obama.wav')
-playsound(f'{SOUND_FILES}/obama-silenced-removed.wav')
+plt.plot(cleaned_signal)
+plt.show()
+
