@@ -1,28 +1,15 @@
-from sonic.preprocess import segment_audio, remove_silence
-import matplotlib.pyplot as plt
+from sonic.features import extract_shorterm_features
 import os
 
-SOUND_FILES = '.test_data/sound'
+SOUND_FILES = '.test_data'
 SEGMENTS_DIR = f'{SOUND_FILES}/segments'
 
 if not os.path.exists(SEGMENTS_DIR):
   os.makedirs(SEGMENTS_DIR)
 
-# create segments and write them to individual files
-# (this will create 1 second segments)
-segments, sample_rate = segment_audio(
-  f'{SOUND_FILES}/obama.wav', 
-  seconds_per_segment=1,
-  write_files=True, 
-  segments_dir=SEGMENTS_DIR
-)
+sound_file = f'{SOUND_FILES}/city/city-traffic-outdoor.wav'
 
-cleaned_signal = remove_silence(
-  segments=segments,
-  sample_rate=sample_rate,
-  outfile=f'{SOUND_FILES}/obama-silenced-removed.wav'
-)
+# retrieve a short term feature vector for the sound file
+vector = extract_shorterm_features(sound_file)
 
-plt.plot(cleaned_signal)
-plt.show()
-
+print(vector.shape)

@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import soundfile as sf
 import numpy as np
 
 # plot the result of a training run
@@ -12,3 +13,8 @@ def plot_result(history):
   plt.legend()
   plt.show()
 
+def display_audio(sound_file):
+  sound, sample_rate = sf.read(sound_file)
+  signal = np.array(sound)
+  plt.plot(signal)
+  plt.show()
