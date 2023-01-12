@@ -1,12 +1,13 @@
-from pyAudioAnalysis import MidTermFeatures as mid_af
-import soundfile as sf
+import os
 import numpy as np
+import soundfile as sf
+from pyAudioAnalysis import MidTermFeatures as af
 
 CHUNKS = {
   'mid_window': 1,
   'mid_step': 1,
-  'short_window': 0.050,
-  'short_step': 0.050
+  'short_window': 0.1,
+  'short_step': 0.05
 }
 
 FEATURES = [
@@ -14,11 +15,29 @@ FEATURES = [
   'energy_entropy_mean'
 ]
 
+def pull_specified(feature_values, feature_names, to_extract):
+  if len(feature_values.shape) > 1:
+    extracted = list(
+      map(
+        lambda feature: feature_values[:, feature_names.index(feature)], 
+        to_extract
+      )
+    )
+  else:
+    extracted = list(
+      map(
+        lambda feature: feature_values[feature_names.index(feature)], 
+        to_extract
+      )
+    )
+
+  return np.array(extracted)
+
 def extract_features(sound_file='', chunks=CHUNKS, features=FEATURES):
   signal, sample_rate = sf.read(sound_file)
 
   # extract short-term features
-  mid_features, short_features, feature_names = mid_af.mid_feature_extraction(
+  mid_features, short_features, feature_names = af.mid_feature_extraction(
     signal, 
     sample_rate, 
     int(sample_rate * chunks['mid_window']), 
@@ -38,3 +57,28 @@ def extract_features(sound_file='', chunks=CHUNKS, features=FEATURES):
   )
 
   return np.array(extracted)
+
+def extract_directories(dirs=[], chunks=CHUNKS, features_to_extract=FEATURES):
+  class_names = [os.path.basename(d) for d in dirs]
+
+  # pull features for each directory (i.e. class)
+  features = []
+  for d in dirs:
+    mid_features, files, feature_names = af.directory_feature_extraction(
+      d,
+      chunks['mid_window'], 
+      chunks['mid_step'],
+      chunks['short_window'], 
+      chunks['short_step']
+    )
+    features.append(mid_features)
+
+  # create a feature maxtrix for each of the classes
+  extracted = list(
+    map(
+      lambda feature: pull_specified(feature, feature_names, features_to_extract), 
+      features
+    )
+  )
+
+  return extracted, class_names
