@@ -1,4 +1,4 @@
-from sonic.features import extract_shorterm_features
+from sonic.features import extract_features
 import os
 
 SOUND_FILES = '.test_data'
@@ -10,6 +10,8 @@ if not os.path.exists(SEGMENTS_DIR):
 sound_file = f'{SOUND_FILES}/city/city-traffic-outdoor.wav'
 
 # retrieve a short term feature vector for the sound file
-vector = extract_shorterm_features(sound_file)
+vector = extract_features(
+  sound_file=sound_file
+)
 
 print(vector.shape)
