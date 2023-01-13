@@ -1,5 +1,6 @@
 from sonic.features import extract_features, extract_directories
 from sonic.review import display_classes
+from sonic.utils import get_sound_dirs
 import os
 
 SOUND_FILES = '.test_data'
@@ -17,14 +18,7 @@ vector = extract_features(
 
 print(vector.shape)
 
-TEST_DIRECTORIES = [
-  f'{SOUND_FILES}/city/ambience',
-  f'{SOUND_FILES}/city/church-bell',
-  f'{SOUND_FILES}/city/horn',
-  f'{SOUND_FILES}/city/rain',
-  f'{SOUND_FILES}/city/siren',
-  f'{SOUND_FILES}/city/traffic'
-]
+TEST_DIRECTORIES = get_sound_dirs(f'{SOUND_FILES}/city')
 
 class_vectors, class_names = extract_directories(dirs=TEST_DIRECTORIES)
 
