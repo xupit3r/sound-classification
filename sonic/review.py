@@ -19,6 +19,11 @@ def display_audio(sound_file):
   plt.plot(signal)
   plt.show()
 
+def display_segments(segments):
+  for segment in segments:
+    plt.plot(segment)
+  plt.show()
+
 def display_classes(class_vectors, class_names, x_label='', y_label=''):
   class_idx = 0
   for cv in class_vectors:

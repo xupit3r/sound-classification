@@ -20,8 +20,11 @@ def segment_audio(sound_file='', seconds_per_segment=1, write_files=False, segme
   
   return segments, sample_rate
 
+def get_energies(segments=[]):
+  return [(s**2).sum() / len(s) for s in segments]
+
 def remove_silence(segments, sample_rate, outfile=''):
-  energies = [(s**2).sum() / len(s) for s in segments]
+  energies = get_energies(segments)
   threshold = 0.5 * np.median(energies)
   index_of_segments_to_keep = (np.where(energies > threshold)[0])
   segments_to_keep = segments[index_of_segments_to_keep]
@@ -31,3 +34,13 @@ def remove_silence(segments, sample_rate, outfile=''):
     sf.write(outfile, cleaned_signal, sample_rate)
 
   return cleaned_signal
+
+def interesting_segments(sound_file='', seconds_per_segment=1):
+  segments, sample_rate = segment_audio(
+    sound_file, 
+    seconds_per_segment=seconds_per_segment
+  )
+
+  energies = get_energies(segments)
+  energy_threshold = 0.5 * np.median(energies)
+  return segments[np.where(energies > energy_threshold)[0]]
