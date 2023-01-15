@@ -1,7 +1,8 @@
 from sonic.features import extract_features, extract_directories
-from sonic.preprocess import interesting_segments
+from sonic.interesting import interesting_segments
 from sonic.review import display_classes, display_audio, display_segments
 from sonic.utils import get_sound_dirs
+import matplotlib.pyplot as plt
 import os
 
 SOUND_FILES = '.test_data'
@@ -31,8 +32,10 @@ if not os.path.exists(SEGMENTS_DIR):
 
 interesting = interesting_segments(
   f'{SOUND_FILES}/anomaly/joe.wav',
-  seconds_per_segment=2
+  base_block=1,
+  base_step=0.05
 )
 
-print(len(interesting))
-display_segments(interesting)
+for i in interesting:
+  plt.plot(i)
+plt.show()

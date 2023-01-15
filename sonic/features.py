@@ -15,6 +15,9 @@ FEATURES = [
   'energy_entropy_mean'
 ]
 
+def get_energies(segments=[]):
+  return [(s**2).sum() / len(s) for s in segments]
+
 def pull_specified(feature_values, feature_names, to_extract):
   if len(feature_values.shape) > 1:
     extracted = list(
