@@ -11,7 +11,6 @@ def normalized_energy(block, signal_energy):
 
 def interesting_segments(sound_file='', base_block=1, base_step=0.05):
   signal, sample_rate = sf.read(sound_file)
-  signal = signal / (2**15)
   signal_length = len(signal)
   signal_energy = (signal**2).sum() / signal_length
 
@@ -32,12 +31,11 @@ def interesting_segments(sound_file='', base_block=1, base_step=0.05):
       segments.append(np.array(signal[start:block[0]]))
       start = 0
 
-  print(segments)
-
   base_name = os.path.splitext(os.path.basename(sound_file))[0]
+
   for step, segment in enumerate(segments):
     sf.write(
-      f'{SEGMENTS_DIR}/{base_name}_{step}.wav',
+      f'{SEGMENTS_DIR}/{base_name}_{step + 1}.wav',
       segment,
       sample_rate
     )
