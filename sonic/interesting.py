@@ -40,4 +40,4 @@ def interesting_segments(sound_file='', base_block=1, base_step=0.05):
       sample_rate
     )
 
-  return segments
+  return segments, blocks, signal

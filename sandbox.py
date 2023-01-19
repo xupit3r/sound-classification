@@ -30,12 +30,14 @@ if not os.path.exists(SEGMENTS_DIR):
 #   'energy_entropy_mean'
 # )
 
-interesting = interesting_segments(
-  f'{SOUND_FILES}/anomaly/joe.wav',
+interesting, blocks, signal = interesting_segments(
+  f'{SOUND_FILES}/city/ambience/street-ambience.wav',
   base_block=1,
   base_step=0.05
 )
 
-for i in interesting:
-  plt.plot(i)
+plt.plot(signal)
+plt.show()
+
+plt.plot([block[2] for block in blocks])
 plt.show()
