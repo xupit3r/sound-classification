@@ -1,5 +1,6 @@
 from sonic.features import extract_features, extract_directories
 from sonic.interesting import interesting_segments
+from sonic.preprocess import denoise
 from sonic.review import display_classes, display_audio, display_segments
 from sonic.utils import get_sound_dirs
 import matplotlib.pyplot as plt
@@ -36,8 +37,12 @@ interesting, blocks, signal = interesting_segments(
   base_step=0.05
 )
 
-plt.plot(signal)
-plt.show()
-
-plt.plot([block[2] for block in blocks])
+# plot em
+fig, axs = plt.subplots(2)
+axs[0].set_title('original signal')
+axs[0].plot(signal)
+axs[1].set_title('denoised signal')
+axs[1].plot(denoise(signal))
+axs[2].set_title('interesting blocks')
+axs[2].plot([block[2] for block in blocks])
 plt.show()

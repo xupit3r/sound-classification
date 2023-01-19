@@ -32,3 +32,6 @@ def remove_silence(segments, sample_rate, outfile=''):
     sf.write(outfile, cleaned_signal, sample_rate)
 
   return cleaned_signal
+
+def denoise(signal, scale=0.95):
+  return np.append(signal[0], signal[1:] - scale * signal[:-1])
