@@ -58,5 +58,10 @@ def signal_frames(signal, sample_rate, size=0.025, stride=0.01):
   frame_index = np.tile(np.arange(0, num_frames * frame_step, frame_step), (frame_length, 1)).T
   indices = base_index + frame_index
 
-  # return the frames
-  return pad_signal[indices.astype(np.int32, copy=False)]
+  # build the frames
+  frames = pad_signal[indices.astype(np.int32, copy=False)]
+
+  # apply the hamming function
+  frames *= np.hamming(frame_length)
+
+  return frames
