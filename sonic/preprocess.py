@@ -35,3 +35,28 @@ def remove_silence(segments, sample_rate, outfile=''):
 
 def denoise(signal, scale=0.95):
   return np.append(signal[0], signal[1:] - scale * signal[:-1])
+
+def signal_frames(signal, sample_rate, size=0.025, stride=0.01):
+  frame_length = int(round(sample_rate * size))
+  frame_step = int(round(sample_rate * stride))
+  signal_length = len(signal)
+
+  num_frames = int(
+    np.ceil(
+      float(np.abs(signal_length - frame_length)) 
+      / frame_step
+    )
+  )
+
+  # pad the original signal so that each from is equal length
+  pad_signal_length = num_frames * frame_step + frame_length
+  z = np.zeros((pad_signal_length - signal_length))
+  pad_signal = np.append(signal, z)
+
+  # build the frame indices
+  base_index = np.tile(np.arange(0, frame_length), (num_frames, 1))
+  frame_index = np.tile(np.arange(0, num_frames * frame_step, frame_step), (frame_length, 1)).T
+  indices = base_index + frame_index
+
+  # return the frames
+  return pad_signal[indices.astype(np.int32, copy=False)]
