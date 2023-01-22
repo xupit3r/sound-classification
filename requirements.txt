@@ -9,3 +9,5 @@ soundfile
 playsound
 pyAudioAnalysis
 eyed3
+matplotlib
+pydub
