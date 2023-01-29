@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import soundfile as sf
 import os
 
-SOUND_FILES = '.test_data'
-SEGMENTS_DIR = f'{SOUND_FILES}/segments'
+SOUND_FILES = ".test_data"
+SEGMENTS_DIR = f"{SOUND_FILES}/segments"
 
 if not os.path.exists(SEGMENTS_DIR):
-  os.makedirs(SEGMENTS_DIR)
+    os.makedirs(SEGMENTS_DIR)
 
 # sound_file = f'{SOUND_FILES}/city/traffic/city-traffic-outdoor.wav'
 
@@ -39,15 +39,15 @@ if not os.path.exists(SEGMENTS_DIR):
 # )
 
 # read signal
-signal, sample_rate = sf.read(f'{SOUND_FILES}/city/ambience/street-ambience.wav')
+signal, sample_rate = sf.read(f"{SOUND_FILES}/city/ambience/street-ambience.wav")
 
 # denoise the signal
 denoised = denoise(signal)
 
 fig, axs = plt.subplots(2)
-axs[0].set_title('original signal')
+axs[0].set_title("original signal")
 axs[0].plot(signal)
-axs[1].set_title('denoised signal')
+axs[1].set_title("denoised signal")
 axs[1].plot(denoised)
 plt.show()
 
