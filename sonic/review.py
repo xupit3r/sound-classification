@@ -44,7 +44,7 @@ def display_classes(class_vectors, class_names, x_label="", y_label=""):
     plt.show()
 
 
-def spectrogram(sound_file, n_fft=2048, hop_length=512):
+def spectrogram(sound_file, hop_length=512):
     y, sr = librosa.load(sound_file)
     D = librosa.amplitude_to_db(
         np.abs(librosa.stft(y, hop_length=hop_length)), ref=np.max
