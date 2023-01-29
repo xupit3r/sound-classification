@@ -1,7 +1,7 @@
 from sonic.features import extract_features, extract_directories
 from sonic.interesting import interesting_segments
 from sonic.preprocess import denoise, signal_frames
-from sonic.review import display_classes, spectrogram
+from sonic.review import display_classes, mel_spectrogram, spectrogram
 from sonic.utils import get_sound_dirs
 import matplotlib.pyplot as plt
 import soundfile as sf
@@ -66,3 +66,7 @@ def show_denoising():
 
 def show_spectrogram():
     spectrogram(f"{SOUND_FILES}/anomaly/joe.wav")
+
+
+def show_mel_spectrogram():
+    mel_spectrogram(f"{SOUND_FILES}/anomaly/joe.wav")

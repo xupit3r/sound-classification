@@ -44,7 +44,7 @@ def display_classes(class_vectors, class_names, x_label="", y_label=""):
     plt.show()
 
 
-def spectrogram(sound_file, hop_length=512):
+def spectrogram(sound_file, n_fft=2048, hop_length=512):
     y, sr = librosa.load(sound_file)
     D = librosa.amplitude_to_db(
         np.abs(librosa.stft(y, hop_length=hop_length)), ref=np.max
@@ -59,10 +59,34 @@ def spectrogram(sound_file, hop_length=512):
 
     # figure 2
     librosa.display.specshow(
-        D, y_axis="log", sr=sr, hop_length=hop_length, x_axis="time", ax=ax[1]
+        D,
+        y_axis="log",
+        sr=sr,
+        n_fft=n_fft,
+        hop_length=hop_length,
+        x_axis="time",
+        ax=ax[1],
     )
     ax[1].set(title="Log-frequency power spectrogram")
     ax[1].label_outer()
 
     fig.colorbar(img, ax=ax, format="%+2.f dB")
+    plt.show()
+
+
+def mel_spectrogram(sound_file, n_mels=128, n_fft=2048, hop_length=512):
+    y, sr = librosa.load(sound_file)
+    S = librosa.feature.melspectrogram(
+        y=y, sr=sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, fmax=8000
+    )
+    S_dB = librosa.power_to_db(S, ref=np.max)
+    fig, ax = plt.subplots()
+    img = librosa.display.specshow(
+        S_dB,
+        x_axis="time",
+        y_axis="mel",
+        ax=ax,
+    )
+    fig.colorbar(img, ax=ax, format="%+2.0f dB")
+    ax.set(title="Mel-frequency spectrogram")
     plt.show()
