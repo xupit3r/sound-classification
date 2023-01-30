@@ -5,6 +5,7 @@ from sonic.review import (
     display_classes,
     mel_spectrogram,
     spectral_centroid,
+    spectral_rolloff,
     spectrogram,
 )
 from sonic.utils import get_sound_dirs
@@ -79,3 +80,7 @@ def show_mel_spectrogram():
 
 def show_spectral_centroid():
     spectral_centroid(f"{SOUND_FILES}/anomaly/joe.wav")
+
+
+def show_spectral_rolloff():
+    spectral_rolloff(f"{SOUND_FILES}/anomaly/joe.wav")

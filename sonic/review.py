@@ -105,3 +105,41 @@ def spectral_centroid(sound_file):
     ax.legend(loc="upper right")
     ax.set(title="log Power spectrogram")
     plt.show()
+
+
+def spectral_rolloff(sound_file):
+    y, sr = librosa.load(sound_file)
+
+    # an approximation of the max rolloff
+    max_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.99)
+
+    # an approximation of the min rolloff
+    min_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.01)
+
+    # separate out the maginitude (S) and phase components
+    S, phase = librosa.magphase(librosa.stft(y))
+
+    # plot!
+    fig, ax = plt.subplots()
+    librosa.display.specshow(
+        librosa.amplitude_to_db(S, ref=np.max), y_axis="log", x_axis="time", ax=ax
+    )
+
+    # plot the max rolloff line
+    ax.plot(
+        librosa.times_like(max_rolloff),
+        max_rolloff[0],
+        label="Roll-off frequency (0.99)",
+    )
+
+    # plot the min rolloff line
+    ax.plot(
+        librosa.times_like(max_rolloff),
+        min_rolloff[0],
+        color="w",
+        label="Roll-off frequency (0.01)",
+    )
+
+    ax.legend(loc="lower right")
+    ax.set(title="log Power spectrogram")
+    plt.show()
