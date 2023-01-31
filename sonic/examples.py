@@ -9,6 +9,7 @@ from sonic.review import (
     spectral_contrast,
     spectral_rolloff,
     spectrogram,
+    tonnetz,
 )
 from sonic.utils import get_sound_dirs
 import matplotlib.pyplot as plt
@@ -94,3 +95,7 @@ def show_spectral_bandwidth():
 
 def show_spectral_contrast():
     spectral_contrast(f"{SOUND_FILES}/anomaly/joe.wav")
+
+
+def show_tonnetz():
+    tonnetz(f"{SOUND_FILES}/anomaly/joe.wav")
