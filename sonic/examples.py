@@ -4,6 +4,7 @@ from sonic.preprocess import denoise, signal_frames
 from sonic.review import (
     display_classes,
     mel_spectrogram,
+    spectral_bandwidth,
     spectral_centroid,
     spectral_rolloff,
     spectrogram,
@@ -84,3 +85,7 @@ def show_spectral_centroid():
 
 def show_spectral_rolloff():
     spectral_rolloff(f"{SOUND_FILES}/anomaly/joe.wav")
+
+
+def show_spectral_bandwidth():
+    spectral_bandwidth(f"{SOUND_FILES}/anomaly/joe.wav")
