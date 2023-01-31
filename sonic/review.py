@@ -174,3 +174,25 @@ def spectral_bandwidth(sound_file):
     ax[1].plot(times, centroid[0], label="Spectral centroid", color="w")
     ax[1].legend(loc="lower right")
     plt.show()
+
+
+def spectral_contrast(sound_file):
+    y, sr = librosa.load(sound_file)
+    S = np.abs(librosa.stft(y))
+    contrast = librosa.feature.spectral_contrast(S=S, sr=sr)
+
+    fig, ax = plt.subplots(nrows=2, sharex=True)
+
+    img1 = librosa.display.specshow(
+        librosa.amplitude_to_db(S, ref=np.max), y_axis="log", x_axis="time", ax=ax[0]
+    )
+
+    fig.colorbar(img1, ax=[ax[0]], format="%+2.0f dB")
+    ax[0].set(title="Power spectrogram")
+    ax[0].label_outer()
+
+    img2 = librosa.display.specshow(contrast, x_axis="time", ax=ax[1])
+    fig.colorbar(img2, ax=[ax[1]])
+    ax[1].set(ylabel="Frequency bands", title="Spectral contrast")
+
+    plt.show()

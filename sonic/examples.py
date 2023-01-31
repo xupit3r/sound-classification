@@ -6,6 +6,7 @@ from sonic.review import (
     mel_spectrogram,
     spectral_bandwidth,
     spectral_centroid,
+    spectral_contrast,
     spectral_rolloff,
     spectrogram,
 )
@@ -89,3 +90,7 @@ def show_spectral_rolloff():
 
 def show_spectral_bandwidth():
     spectral_bandwidth(f"{SOUND_FILES}/anomaly/joe.wav")
+
+
+def show_spectral_contrast():
+    spectral_contrast(f"{SOUND_FILES}/anomaly/joe.wav")
