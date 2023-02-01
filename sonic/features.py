@@ -1,4 +1,5 @@
 import os
+import librosa
 import numpy as np
 import soundfile as sf
 from pyAudioAnalysis import MidTermFeatures as af
@@ -77,3 +78,24 @@ def extract_directories(dirs=[], chunks=CHUNKS, features_to_extract=FEATURES):
     )
 
     return extracted, class_names
+
+
+def mfcc(y, sr, n_mels=40):
+    return librosa.feature.mfcc(y=y, sr=sr, n_mels=n_mels)
+
+
+def melspectrogram(y, sr):
+    return librosa.feature.melspectrogram(y=y, sr=sr)
+
+
+def contrast(y, sr):
+    S = np.abs(librosa.stft(y))
+    return librosa.feature.spectral_contrast(S=S, sr=sr)
+
+
+def centroid(y, sr):
+    return librosa.feature.spectral_centroid(y=y, sr=sr)
+
+
+def bandwidth(y, sr):
+    return librosa.feature.spectral_bandwidth(y=y, sr=sr)

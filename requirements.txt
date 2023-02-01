@@ -11,3 +11,4 @@ pyAudioAnalysis
 eyed3
 matplotlib
 pydub
+tqdm
