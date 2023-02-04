@@ -249,3 +249,20 @@ plt.ylim([0, 100])
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy [%]")
 plt.show()
+
+# evaluate the model against our test data
+model.evaluate(test_spectrogram_ds, return_dict=True)
+
+# display a confusion matrix to visualize the results
+y_pred = model.predict(test_spectrogram_ds)
+y_pred = tf.argmax(y_pred, axis=1)
+y_true = tf.concat(list(test_spectrogram_ds.map(lambda s, lab: lab)), axis=0)
+
+confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
+plt.figure(figsize=(10, 8))
+sns.heatmap(
+    confusion_mtx, xticklabels=label_names, yticklabels=label_names, annot=True, fmt="g"
+)
+plt.xlabel("Prediction")
+plt.ylabel("Label")
+plt.show()
