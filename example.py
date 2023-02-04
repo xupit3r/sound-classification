@@ -266,3 +266,23 @@ sns.heatmap(
 plt.xlabel("Prediction")
 plt.ylabel("Label")
 plt.show()
+
+
+# finally, let's run an inference on an audio file that says "no"
+x = data_dir / "no/01bb6a2a_nohash_0.wav"
+x = tf.io.read_file(str(x))
+x, sample_rate = tf.audio.decode_wav(
+    x,
+    desired_channels=1,
+    desired_samples=16000,
+)
+x = tf.squeeze(x, axis=-1)
+waveform = x
+x = get_spectrogram(x)
+x = x[tf.newaxis, ...]
+
+prediction = model(x)
+x_labels = ["no", "yes", "down", "go", "left", "up", "right", "stop"]
+plt.bar(x_labels, tf.nn.softmax(prediction[0]))
+plt.title("No")
+plt.show()
