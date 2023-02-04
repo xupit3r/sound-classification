@@ -26,3 +26,30 @@ if not data_dir.exists():
 commands = np.array(tf.io.gfile.listdir(str(data_dir)))
 commands = commands[(commands != "README.md") & (commands != ".DS_Store")]
 print("Commands:", commands)
+
+# build the training/validation datasets
+train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
+    directory=data_dir,
+    batch_size=64,
+    validation_split=0.2,
+    seed=0,
+    output_sequence_length=16000,
+    subset="both",
+)
+
+label_names = np.array(train_ds.class_names)
+print()
+print("label names:", label_names)
+
+# ensure audio is only dealing with one channel
+def squeeze(audio, labels):
+    audio = tf.squeeze(audio, axis=-1)
+    return audio, labels
+
+
+train_ds = train_ds.map(squeeze, tf.data.AUTOTUNE)
+val_ds = val_ds.map(squeeze, tf.data.AUTOTUNE)
+
+# keep a separate test dataset using shards!
+test_ds = val_ds.shard(num_shards=2, index=0)
+val_ds = val_ds.shard(num_shards=2, index=1)
