@@ -6,6 +6,8 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
+# NOTE: this example follows: https://www.tensorflow.org/tutorials/audio/simple_audio
+
 display_waveforms = False
 display_spectrogram = False
 display_ds_spectrograms = False
@@ -17,7 +19,9 @@ tf.random.set_seed(seed)
 np.random.seed(seed)
 
 DATASET_PATH = ".cached_datasets/tensorflow/mini_speech_commands"
+MODEL_PATH = ".models"
 data_dir = pathlib.Path(DATASET_PATH)
+model_dir = pathlib.Path(MODEL_PATH)
 
 if not data_dir.exists():
     tf.keras.utils.get_file(
@@ -286,3 +290,50 @@ x_labels = ["no", "yes", "down", "go", "left", "up", "right", "stop"]
 plt.bar(x_labels, tf.nn.softmax(prediction[0]))
 plt.title("No")
 plt.show()
+
+# now build a class that can be used to export a model and make running
+# it later much easier
+class ExportModel(tf.Module):
+    def __init__(self, model):
+        self.model = model
+
+        # Accept either a string-filename or a batch of waveforms.
+        # YOu could add additional signatures for a single wave, or a ragged-batch.
+        self.__call__.get_concrete_function(x=tf.TensorSpec(shape=(), dtype=tf.string))
+        self.__call__.get_concrete_function(
+            x=tf.TensorSpec(shape=[None, 16000], dtype=tf.float32)
+        )
+
+    @tf.function
+    def __call__(self, x):
+        # If they pass a string, load the file and decode it.
+        if x.dtype == tf.string:
+            x = tf.io.read_file(x)
+            x, _ = tf.audio.decode_wav(
+                x,
+                desired_channels=1,
+                desired_samples=16000,
+            )
+            x = tf.squeeze(x, axis=-1)
+            x = x[tf.newaxis, :]
+
+        x = get_spectrogram(x)
+        result = self.model(x, training=False)
+
+        class_ids = tf.argmax(result, axis=-1)
+        class_names = tf.gather(label_names, class_ids)
+        return {
+            "predictions": result,
+            "class_ids": class_ids,
+            "class_names": class_names,
+        }
+
+
+# test the model export
+export = ExportModel(model)
+print(export(tf.constant(str(data_dir / "no/01bb6a2a_nohash_0.wav"))))
+
+# save the model and reload it
+tf.saved_model.save(export, str(model_dir / "saved"))
+imported = tf.saved_model.load(str(model_dir / "saved"))
+print(imported(waveform[tf.newaxis, :]))
