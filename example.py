@@ -194,8 +194,8 @@ norm_layer.adapt(data=train_spectrogram_ds.map(map_func=lambda spec, label: spec
 model = models.Sequential(
     [
         layers.Input(shape=input_shape),
-        # Downsample the input.
-        layers.Resizing(32, 32),
+        # Downsample the input (for quicker training)
+        # layers.Resizing(32, 32),
         # Normalize.
         norm_layer,
         # push through the CNN
@@ -226,3 +226,26 @@ history = model.fit(
     epochs=EPOCHS,
     callbacks=tf.keras.callbacks.EarlyStopping(verbose=1, patience=2),
 )
+
+
+# plot training and validation loss curves
+metrics = history.history
+plt.figure(figsize=(16, 6))
+plt.subplot(1, 2, 1)
+plt.plot(history.epoch, metrics["loss"], metrics["val_loss"])
+plt.legend(["loss", "val_loss"])
+plt.ylim([0, max(plt.ylim())])
+plt.xlabel("Epoch")
+plt.ylabel("Loss [CrossEntropy]")
+
+plt.subplot(1, 2, 2)
+plt.plot(
+    history.epoch,
+    100 * np.array(metrics["accuracy"]),
+    100 * np.array(metrics["val_accuracy"]),
+)
+plt.legend(["accuracy", "val_accuracy"])
+plt.ylim([0, 100])
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy [%]")
+plt.show()
