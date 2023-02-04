@@ -12,3 +12,4 @@ eyed3
 matplotlib
 pydub
 tqdm
+seaborn

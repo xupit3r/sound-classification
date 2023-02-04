@@ -9,3 +9,6 @@ sandbox:
 
 build_datasets:
 	TF_CPP_MIN_LOG_LEVEL=3 python3 build_datasets.py
+
+example:
+	TF_CPP_MIN_LOG_LEVEL=3 python3 example.py
