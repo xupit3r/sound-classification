@@ -8,6 +8,7 @@ from tensorflow.keras import layers, models
 
 display_waveforms = False
 display_spectrogram = False
+display_ds_spectrograms = False
 
 
 # good idea to set random seed to be able to reproduce
@@ -140,3 +141,34 @@ if display_spectrogram:
         axes[1].set_title("Spectrogram")
         plt.suptitle(label.title())
         plt.show()
+
+# cool, now let's convert our training, validation, and test datasets
+# to them lovely little spectrograms
+def make_spec_ds(ds):
+    return ds.map(
+        map_func=lambda audio, label: (get_spectrogram(audio), label),
+        num_parallel_calls=tf.data.AUTOTUNE,
+    )
+
+
+train_spectrogram_ds = make_spec_ds(train_ds)
+val_spectrogram_ds = make_spec_ds(val_ds)
+test_spectrogram_ds = make_spec_ds(test_ds)
+
+if display_ds_spectrograms:
+    for example_spectrograms, example_spect_labels in train_spectrogram_ds.take(1):
+        break
+
+    rows = 3
+    cols = 3
+    n = rows * cols
+    fig, axes = plt.subplots(rows, cols, figsize=(16, 9))
+
+    for i in range(n):
+        r = i // cols
+        c = i % cols
+        ax = axes[r][c]
+        plot_spectrogram(example_spectrograms[i].numpy(), ax)
+        ax.set_title(label_names[example_spect_labels[i].numpy()])
+
+    plt.show()
