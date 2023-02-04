@@ -53,3 +53,32 @@ val_ds = val_ds.map(squeeze, tf.data.AUTOTUNE)
 # keep a separate test dataset using shards!
 test_ds = val_ds.shard(num_shards=2, index=0)
 val_ds = val_ds.shard(num_shards=2, index=1)
+
+
+# now, let's look at the data set shapes
+for example_audio, example_labels in train_ds.take(1):
+    print(example_audio.shape)
+    print(example_labels.shape)
+
+
+# plat some waves for a few classes!
+label_names[[1, 1, 3, 0]]
+
+rows = 3
+cols = 3
+n = rows * cols
+fig, axes = plt.subplots(rows, cols, figsize=(16, 9))
+
+for i in range(n):
+    if i >= n:
+        break
+    r = i // cols
+    c = i % cols
+    ax = axes[r][c]
+    ax.plot(example_audio[i].numpy())
+    ax.set_yticks(np.arange(-1.2, 1.2, 0.2))
+    label = label_names[example_labels[i]]
+    ax.set_title(label)
+    ax.set_ylim([-1.1, 1.1])
+
+plt.show()
