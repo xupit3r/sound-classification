@@ -2,14 +2,60 @@ from sonic.features import mfcc
 from sklearn.model_selection import train_test_split
 from operator import itemgetter
 from tqdm import tqdm
-import os as os
+import os
+import pathlib
 import csv as csv
 import librosa as librosa
 import cv2 as cv2
 import numpy as np
+import tensorflow as tf
 
 DATASETS_DIR = ".datasets"
 BINARY_OUTPUT = ".cached_datasets"
+TENSORFLOW_DATASETS = f"{DATASETS_DIR}/tensorflow"
+
+pathlib.Path(DATASETS_DIR).mkdir(parents=True, exist_ok=True)
+pathlib.Path(BINARY_OUTPUT).mkdir(parents=True, exist_ok=True)
+pathlib.Path(TENSORFLOW_DATASETS).mkdir(parents=True, exist_ok=True)
+
+# ensure audio is only dealing with one channel
+def squeeze(audio, labels):
+    audio = tf.squeeze(audio, axis=-1)
+    return audio, labels
+
+
+def get_tensorflow_dataset():
+    data_dir = pathlib.Path(f"{TENSORFLOW_DATASETS}/mini_speech_commands")
+
+    if not data_dir.exists():
+        tf.keras.utils.get_file(
+            "mini_speech_commands.zip",
+            origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
+            extract=True,
+            cache_dir=TENSORFLOW_DATASETS,
+            cache_subdir=".",
+        )
+
+    # build the training/validation datasets
+    train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
+        directory=data_dir,
+        batch_size=64,
+        validation_split=0.2,
+        seed=0,
+        output_sequence_length=16000,
+        subset="both",
+    )
+
+    label_names = np.array(train_ds.class_names)
+
+    train_ds = train_ds.map(squeeze, tf.data.AUTOTUNE)
+    val_ds = val_ds.map(squeeze, tf.data.AUTOTUNE)
+
+    # keep a separate test dataset using shards!
+    test_ds = val_ds.shard(num_shards=2, index=0)
+    val_ds = val_ds.shard(num_shards=2, index=1)
+
+    return train_ds, val_ds, test_ds, label_names, data_dir
 
 
 def read_dataset_info(name="", file_key="", class_key="", classname_key=""):
