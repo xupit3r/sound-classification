@@ -1,4 +1,8 @@
-from sonic.datasets import get_tensorflow_dataset
+from sonic.datasets import (
+    get_tensorflow_dataset,
+    get_dataset_examples,
+    plot_example_waveforms,
+)
 import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,33 +28,11 @@ model_dir = pathlib.Path(MODEL_PATH)
 train_ds, val_ds, test_ds, label_names, data_dir = get_tensorflow_dataset()
 
 # now, let's look at the data set shapes
-for example_audio, example_labels in train_ds.take(1):
-    print(example_audio.shape)
-    print(example_labels.shape)
-
+example_audio, example_labels = get_dataset_examples(train_ds)
 
 # plat some waves for a few classes!
 if display_waveforms:
-    label_names[[1, 1, 3, 0]]
-
-    rows = 3
-    cols = 3
-    n = rows * cols
-    fig, axes = plt.subplots(rows, cols, figsize=(16, 9))
-
-    for i in range(n):
-        if i >= n:
-            break
-        r = i // cols
-        c = i % cols
-        ax = axes[r][c]
-        ax.plot(example_audio[i].numpy())
-        ax.set_yticks(np.arange(-1.2, 1.2, 0.2))
-        label = label_names[example_labels[i]]
-        ax.set_title(label)
-        ax.set_ylim([-1.1, 1.1])
-
-    plt.show()
+    plot_example_waveforms(label_names, example_audio, example_labels)
 
 
 def get_spectrogram(waveform):

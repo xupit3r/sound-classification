@@ -9,6 +9,7 @@ import librosa as librosa
 import cv2 as cv2
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 DATASETS_DIR = ".datasets"
 BINARY_OUTPUT = ".cached_datasets"
@@ -56,6 +57,34 @@ def get_tensorflow_dataset():
     val_ds = val_ds.shard(num_shards=2, index=1)
 
     return train_ds, val_ds, test_ds, label_names, data_dir
+
+
+def get_dataset_examples(train_ds):
+    example_audio, example_labels = train_ds.take(1)
+    return example_audio, example_labels
+
+
+def plot_example_waveforms(label_names, example_audio, example_labels):
+    label_names[[1, 1, 3, 0]]
+
+    rows = 3
+    cols = 3
+    n = rows * cols
+    fig, axes = plt.subplots(rows, cols, figsize=(16, 9))
+
+    for i in range(n):
+        if i >= n:
+            break
+        r = i // cols
+        c = i % cols
+        ax = axes[r][c]
+        ax.plot(example_audio[i].numpy())
+        ax.set_yticks(np.arange(-1.2, 1.2, 0.2))
+        label = label_names[example_labels[i]]
+        ax.set_title(label)
+        ax.set_ylim([-1.1, 1.1])
+
+    plt.show()
 
 
 def read_dataset_info(name="", file_key="", class_key="", classname_key=""):
