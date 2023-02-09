@@ -1,4 +1,5 @@
 from sonic.features import mfcc
+from sonic.review import get_spectrogram, plot_spectrogram
 from sklearn.model_selection import train_test_split
 from operator import itemgetter
 from tqdm import tqdm
@@ -60,7 +61,8 @@ def get_tensorflow_dataset():
 
 
 def get_dataset_examples(train_ds):
-    example_audio, example_labels = train_ds.take(1)
+    for example_audio, example_labels in train_ds.take(1):
+        break
     return example_audio, example_labels
 
 
@@ -85,6 +87,42 @@ def plot_example_waveforms(label_names, example_audio, example_labels):
         ax.set_ylim([-1.1, 1.1])
 
     plt.show()
+
+
+def plot_example_spectrogram(label_names, example_audio, example_labels):
+    for i in range(3):
+        label = label_names[example_labels[i]]
+        waveform = example_audio[i]
+        spectrogram = get_spectrogram(waveform)
+
+        print("Label:", label)
+        print("Waveform shape:", waveform.shape)
+        print("Spectrogram shape:", spectrogram.shape)
+        print("Audio playback")
+
+        fig, axes = plt.subplots(2, figsize=(12, 8))
+        timescale = np.arange(waveform.shape[0])
+        axes[0].plot(timescale, waveform.numpy())
+        axes[0].set_title("Waveform")
+        axes[0].set_xlim([0, 16000])
+
+        plot_spectrogram(spectrogram.numpy(), axes[1])
+        axes[1].set_title("Spectrogram")
+        plt.suptitle(label.title())
+        plt.show()
+
+
+def make_spec_ds(ds):
+    return ds.map(
+        map_func=lambda audio, label: (get_spectrogram(audio), label),
+        num_parallel_calls=tf.data.AUTOTUNE,
+    )
+
+
+def get_spectrogram_examples(train_spectrogram_ds):
+    for example_spectrograms, example_spect_labels in train_spectrogram_ds.take(1):
+        break
+    return example_spectrograms, example_spect_labels
 
 
 def read_dataset_info(name="", file_key="", class_key="", classname_key=""):

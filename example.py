@@ -1,8 +1,12 @@
 from sonic.datasets import (
+    get_spectrogram_examples,
     get_tensorflow_dataset,
     get_dataset_examples,
+    plot_example_spectrogram,
     plot_example_waveforms,
+    make_spec_ds,
 )
+from sonic.review import get_spectrogram
 import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,88 +39,19 @@ if display_waveforms:
     plot_example_waveforms(label_names, example_audio, example_labels)
 
 
-def get_spectrogram(waveform):
-    # Convert the waveform to a spectrogram via a STFT.
-    spectrogram = tf.signal.stft(waveform, frame_length=255, frame_step=128)
-
-    # Obtain the magnitude of the STFT.
-    spectrogram = tf.abs(spectrogram)
-
-    # Add a `channels` dimension, so that the spectrogram can be used
-    # as image-like input data with convolution layers (which expect
-    # shape (`batch_size`, `height`, `width`, `channels`).
-    spectrogram = spectrogram[..., tf.newaxis]
-
-    return spectrogram
-
-
-def plot_spectrogram(spectrogram, ax):
-    if len(spectrogram.shape) > 2:
-        assert len(spectrogram.shape) == 3
-        spectrogram = np.squeeze(spectrogram, axis=-1)
-    # Convert the frequencies to log scale and transpose, so that the time is
-    # represented on the x-axis (columns).
-    # Add an epsilon to avoid taking a log of zero.
-    log_spec = np.log(spectrogram.T + np.finfo(float).eps)
-    height = log_spec.shape[0]
-    width = log_spec.shape[1]
-    X = np.linspace(0, np.size(spectrogram), num=width, dtype=int)
-    Y = range(height)
-    ax.pcolormesh(X, Y, log_spec)
-
-
 if display_spectrogram:
-    for i in range(3):
-        label = label_names[example_labels[i]]
-        waveform = example_audio[i]
-        spectrogram = get_spectrogram(waveform)
-
-        print("Label:", label)
-        print("Waveform shape:", waveform.shape)
-        print("Spectrogram shape:", spectrogram.shape)
-        print("Audio playback")
-
-        fig, axes = plt.subplots(2, figsize=(12, 8))
-        timescale = np.arange(waveform.shape[0])
-        axes[0].plot(timescale, waveform.numpy())
-        axes[0].set_title("Waveform")
-        axes[0].set_xlim([0, 16000])
-
-        plot_spectrogram(spectrogram.numpy(), axes[1])
-        axes[1].set_title("Spectrogram")
-        plt.suptitle(label.title())
-        plt.show()
+    plot_example_spectrogram(label_names, example_audio, example_labels)
 
 # cool, now let's convert our training, validation, and test datasets
 # to them lovely little spectrograms
-def make_spec_ds(ds):
-    return ds.map(
-        map_func=lambda audio, label: (get_spectrogram(audio), label),
-        num_parallel_calls=tf.data.AUTOTUNE,
-    )
-
-
 train_spectrogram_ds = make_spec_ds(train_ds)
 val_spectrogram_ds = make_spec_ds(val_ds)
 test_spectrogram_ds = make_spec_ds(test_ds)
 
-for example_spectrograms, example_spect_labels in train_spectrogram_ds.take(1):
-    break
-
-if display_ds_spectrograms:
-    rows = 3
-    cols = 3
-    n = rows * cols
-    fig, axes = plt.subplots(rows, cols, figsize=(16, 9))
-
-    for i in range(n):
-        r = i // cols
-        c = i % cols
-        ax = axes[r][c]
-        plot_spectrogram(example_spectrograms[i].numpy(), ax)
-        ax.set_title(label_names[example_spect_labels[i].numpy()])
-
-    plt.show()
+# get the first batch of example spectrograms
+example_spectrograms, example_spect_labels = get_spectrogram_examples(
+    train_spectrogram_ds
+)
 
 # setup datasets to cache and prefetch to help with performance
 train_spectrogram_ds = (
