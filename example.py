@@ -6,12 +6,11 @@ from sonic.datasets import (
     plot_example_waveforms,
     make_spec_ds,
 )
-from sonic.review import get_spectrogram
+from sonic.review import confusion_maxtrix, get_spectrogram, plot_result
 from sonic.models import save_model, load_model
 import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
@@ -110,44 +109,14 @@ history = model.fit(
 
 
 # plot training and validation loss curves
-metrics = history.history
-plt.figure(figsize=(16, 6))
-plt.subplot(1, 2, 1)
-plt.plot(history.epoch, metrics["loss"], metrics["val_loss"])
-plt.legend(["loss", "val_loss"])
-plt.ylim([0, max(plt.ylim())])
-plt.xlabel("Epoch")
-plt.ylabel("Loss [CrossEntropy]")
-
-plt.subplot(1, 2, 2)
-plt.plot(
-    history.epoch,
-    100 * np.array(metrics["accuracy"]),
-    100 * np.array(metrics["val_accuracy"]),
-)
-plt.legend(["accuracy", "val_accuracy"])
-plt.ylim([0, 100])
-plt.xlabel("Epoch")
-plt.ylabel("Accuracy [%]")
-plt.show()
+plot_result(history)
 
 # evaluate the model against our test data
 model.evaluate(test_spectrogram_ds, return_dict=True)
 
-# display a confusion matrix to visualize the results
-y_pred = model.predict(test_spectrogram_ds)
-y_pred = tf.argmax(y_pred, axis=1)
-y_true = tf.concat(list(test_spectrogram_ds.map(lambda s, lab: lab)), axis=0)
-
-confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
-plt.figure(figsize=(10, 8))
-sns.heatmap(
-    confusion_mtx, xticklabels=label_names, yticklabels=label_names, annot=True, fmt="g"
-)
-plt.xlabel("Prediction")
-plt.ylabel("Label")
-plt.show()
-
+# run our test data to be able to build the confusion matrix
+# display a confusion matrix for the test run
+confusion_maxtrix(model, test_spectrogram_ds, label_names)
 
 # finally, let's run an inference on an audio file that says "no"
 x = data_dir / "no/01bb6a2a_nohash_0.wav"

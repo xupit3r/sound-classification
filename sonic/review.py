@@ -4,17 +4,53 @@ import matplotlib.pyplot as plt
 import soundfile as sf
 import numpy as np
 import tensorflow as tf
+import seaborn as sns
 
 # plot the result of a training run
 def plot_result(history):
-    loss = history.history["loss"]
-    val_loss = history.history["val_loss"]
-    epochs = range(1, len(loss) + 1)
-    plt.plot(epochs, loss, "bo", label="Training loss")
-    plt.plot(epochs, val_loss, "b", label="Validation loss")
-    plt.title("Training and validation loss")
-    plt.legend()
+    metrics = history.history
+    plt.figure(figsize=(16, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.epoch, metrics["loss"], metrics["val_loss"])
+    plt.legend(["loss", "val_loss"])
+    plt.ylim([0, max(plt.ylim())])
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss [CrossEntropy]")
+
+    plt.subplot(1, 2, 2)
+    plt.plot(
+        history.epoch,
+        100 * np.array(metrics["accuracy"]),
+        100 * np.array(metrics["val_accuracy"]),
+    )
+    plt.legend(["accuracy", "val_accuracy"])
+    plt.ylim([0, 100])
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy [%]")
     plt.show()
+
+
+def confusion_maxtrix(model, test_spectrogram_ds, label_names):
+    # prepare confusion matrix data
+    y_pred = model.predict(test_spectrogram_ds)
+    y_pred = tf.argmax(y_pred, axis=1)
+    y_true = tf.concat(list(test_spectrogram_ds.map(lambda s, lab: lab)), axis=0)
+
+    # plot the confusion matrix
+    confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(
+        confusion_mtx,
+        xticklabels=label_names,
+        yticklabels=label_names,
+        annot=True,
+        fmt="g",
+    )
+    plt.xlabel("Prediction")
+    plt.ylabel("Label")
+
+
+plt.show()
 
 
 def display_audio(sound_file):
