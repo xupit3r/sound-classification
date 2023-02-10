@@ -12,3 +12,6 @@ build_datasets:
 
 example:
 	TF_CPP_MIN_LOG_LEVEL=3 python3 example.py
+
+util:
+	python3 util.py
