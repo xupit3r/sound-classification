@@ -13,12 +13,11 @@ class CatNames(tfds.core.GeneratorBasedBuilder):
 
     def _info(self) -> tfds.core.DatasetInfo:
         """Returns the dataset metadata."""
-        # TODO(cat_names): Specifies the tfds.core.DatasetInfo object
         return self.dataset_info_from_configs(
             features=tfds.features.FeaturesDict(
                 {
                     # These are the features of your dataset like images, labels ...
-                    "audio": tfds.features.Audio(shape=(None, None, 1)),
+                    "audio": tfds.features.Audio(file_format="wav", sample_rate=16000),
                     "label": tfds.features.ClassLabel(names=["ada", "eugene"]),
                 }
             ),
@@ -31,13 +30,11 @@ class CatNames(tfds.core.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
         """Returns SplitGenerators."""
-        # TODO(cat_names): Downloads the data and defines the splits
-        path = dl_manager.download_and_extract("https://todo-data-url")
+        path = dl_manager.download_and_extract("https://thejoeshow.net/kitties.zip")
 
-        # TODO(cat_names): Returns the Dict[split names, Iterator[Key, Example]]
         return {
-            "train": self._generate_examples(path / "train_data"),
-            "test": self._generate_examples(path / "test_data"),
+            "train": self._generate_examples(path / "kitties/train_data"),
+            "test": self._generate_examples(path / "kitties/test_data"),
         }
 
     def _generate_examples(self, path):
