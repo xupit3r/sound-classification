@@ -45,5 +45,5 @@ class CatNames(tfds.core.GeneratorBasedBuilder):
         for audio in path.glob("*.wav"):
             yield audio.name, {
                 "audio": audio,
-                "label": "eugene" if audio.name.startswith("yes_") else "ada",
+                "label": "eugene" if audio.name.startswith("eugene_") else "ada",
             }
