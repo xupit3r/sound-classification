@@ -6,4 +6,4 @@ ds = tfds.load("cat_names", split="train", as_supervised=True, shuffle_files=Tru
 
 ds = ds.shuffle(1000).batch(128).prefetch(10).take(5)
 for audio, label in ds:
-    print("label: %s\nimage: %s" % (label, audio))
+    print("label: %s\naudio: %s" % (label, audio))
