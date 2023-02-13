@@ -1,7 +1,5 @@
 """cat_names dataset."""
-import soundfile as sf
 import tensorflow_datasets as tfds
-from librosa.util import fix_length
 
 
 class CatNames(tfds.core.GeneratorBasedBuilder):
