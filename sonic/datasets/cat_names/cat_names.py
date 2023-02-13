@@ -1,6 +1,7 @@
 """cat_names dataset."""
-
+import soundfile as sf
 import tensorflow_datasets as tfds
+from librosa.util import fix_length
 
 
 class CatNames(tfds.core.GeneratorBasedBuilder):
@@ -16,16 +17,12 @@ class CatNames(tfds.core.GeneratorBasedBuilder):
         return self.dataset_info_from_configs(
             features=tfds.features.FeaturesDict(
                 {
-                    # These are the features of your dataset like images, labels ...
                     "audio": tfds.features.Audio(file_format="wav", sample_rate=16000),
                     "label": tfds.features.ClassLabel(names=["ada", "eugene"]),
                 }
             ),
-            # If there's a common (input, target) tuple from the
-            # features, specify them here. They'll be used if
-            # `as_supervised=True` in `builder.as_dataset`.
-            supervised_keys=("audio", "label"),  # Set to `None` to disable
-            homepage="https://dataset-homepage/",
+            supervised_keys=("audio", "label"),
+            homepage="https://thejoeshow.net/kitties",
         )
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
@@ -33,8 +30,8 @@ class CatNames(tfds.core.GeneratorBasedBuilder):
         path = dl_manager.download_and_extract("https://thejoeshow.net/kitties.zip")
 
         return {
-            "train": self._generate_examples(path / "kitties/train_data"),
-            "test": self._generate_examples(path / "kitties/test_data"),
+            "train": self._generate_examples(path / "train_data"),
+            "test": self._generate_examples(path / "test_data"),
         }
 
     def _generate_examples(self, path):
