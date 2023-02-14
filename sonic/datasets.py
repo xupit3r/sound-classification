@@ -1,3 +1,5 @@
+from functools import reduce
+from re import sub
 from sonic.features import mfcc
 from sonic.review import get_spectrogram, plot_spectrogram
 from sklearn.model_selection import train_test_split
@@ -11,6 +13,7 @@ import cv2 as cv2
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import soundfile as sf
 
 DATASETS_DIR = ".datasets"
 BINARY_OUTPUT = ".cached_datasets"
@@ -218,3 +221,20 @@ def get_urban_sounds(feature=mfcc):
     )
 
     return ((train_x, train_y), (test_x, test_y), class_names)
+
+
+def kitties():
+    ds = {"train": [], "test": []}
+
+    def createEntry(subdir, file):
+        key = "train" if subdir.endswith("train_data") else "test"
+        signal, sample_rate = sf.read(os.path.join(subdir, file))
+        label = to_one_hot(1 if file.startswith("ada") else 0, 2)
+        ds[key].append((get_spectrogram(signal), label))
+
+    for subdir, dirs, files in os.walk("sonic/custom_datasets/cat_names"):
+        for file in files:
+            if file.endswith(".wav"):
+                createEntry(subdir, file)
+
+    return ds

@@ -1,1 +1,1 @@
-from sonic.datasets import cat_names
+from sonic.custom_datasets import cat_names
