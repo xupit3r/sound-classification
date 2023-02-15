@@ -14,6 +14,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import soundfile as sf
+import random
 
 DATASETS_DIR = ".datasets"
 BINARY_OUTPUT = ".cached_datasets"
@@ -236,5 +237,8 @@ def kitties():
         for file in files:
             if file.endswith(".wav"):
                 createEntry(subdir, file)
+
+    random.shuffle(ds["train"])
+    random.shuffle(ds["test"])
 
     return ds
