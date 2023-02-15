@@ -2,10 +2,7 @@ from sonic.datasets import kitties
 from tensorflow import keras
 import numpy as np
 
-ds = kitties()
-
-train_ds = ds["train"]
-test_ds = ds["test"]
+train_ds, test_ds, labels = kitties()
 
 train_x = np.array(list(map(lambda v: v[0], train_ds)))
 train_y = np.array(list(map(lambda v: v[1], train_ds)))

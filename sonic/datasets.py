@@ -225,20 +225,21 @@ def get_urban_sounds(feature=mfcc):
 
 
 def kitties():
-    ds = {"train": [], "test": []}
+    train_ds = []
+    test_ds = []
+    labels = ["eugene", "ada"]
 
     def createEntry(subdir, file):
-        key = "train" if subdir.endswith("train_data") else "test"
+        ds = train_ds if subdir.endswith("train_data") else test_ds
         signal, sample_rate = sf.read(os.path.join(subdir, file))
         label = to_one_hot(1 if file.startswith("ada") else 0, 2)
-        ds[key].append((get_spectrogram(signal), label))
+        ds.append((get_spectrogram(signal), label))
 
     for subdir, dirs, files in os.walk("sonic/custom_datasets/cat_names"):
-        for file in files:
-            if file.endswith(".wav"):
-                createEntry(subdir, file)
+        for file in [file for file in files if file.endswith(".wav")]:
+            createEntry(subdir, file)
 
-    random.shuffle(ds["train"])
-    random.shuffle(ds["test"])
+    random.shuffle(train_ds)
+    random.shuffle(train_ds)
 
-    return ds
+    return train_ds, test_ds, labels
