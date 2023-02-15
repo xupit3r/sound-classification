@@ -1,4 +1,5 @@
 tensorflow
+tensorflow_hub
 tensorflow-datasets
 tensorflow-rocm
 python-dotenv
