@@ -27,13 +27,16 @@ def load_wav_16k_mono(filename):
     """Load a WAV file, convert it to a float tensor, resample to 16 kHz single-channel audio."""
     signal, sr = sf.read(filename)
     signal = resample(signal, orig_sr=sr, target_sr=16000)
+
+    # yamnet expects tf.float32 as input...
+    signal = tf.cast(signal, dtype=tf.float32)
     return signal
 
 
 testing_wav_data = load_wav_16k_mono(testing_wav_file_name)
 
-plt.plot(testing_wav_data)
-plt.show()
+# plt.plot(testing_wav_data)
+# plt.show()
 
 class_map_path = yamnet_model.class_map_path().numpy().decode("utf-8")
 class_names = list(pd.read_csv(class_map_path)["display_name"])
@@ -41,3 +44,11 @@ class_names = list(pd.read_csv(class_map_path)["display_name"])
 for name in class_names[:20]:
     print(name)
 print("...")
+
+scores, embeddings, spectrogram = yamnet_model(testing_wav_data)
+class_scores = tf.reduce_mean(scores, axis=0)
+top_class = tf.math.argmax(class_scores)
+inferred_class = class_names[top_class]
+
+print(f"The main sound is: {inferred_class}")
+print(f"The embeddings shape: {embeddings.shape}")
