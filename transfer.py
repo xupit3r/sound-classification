@@ -52,3 +52,30 @@ inferred_class = class_names[top_class]
 
 print(f"The main sound is: {inferred_class}")
 print(f"The embeddings shape: {embeddings.shape}")
+
+# _ = tf.keras.utils.get_file(
+#     "esc-50.zip",
+#     "https://github.com/karoldvl/ESC-50/archive/master.zip",
+#     cache_dir=".datasets",
+#     cache_subdir="tensorflow",
+#     extract=True,
+# )
+
+esc50_csv = ".datasets/tensorflow/ESC-50-master/meta/esc50.csv"
+base_data_path = ".datasets/tensorflow/ESC-50-master/audio/"
+
+pd_data = pd.read_csv(esc50_csv)
+print(pd_data.head())
+
+my_classes = ["dog", "cat"]
+map_class_to_id = {"dog": 0, "cat": 1}
+
+filtered_pd = pd_data[pd_data.category.isin(my_classes)]
+
+class_id = filtered_pd["category"].apply(lambda name: map_class_to_id[name])
+filtered_pd = filtered_pd.assign(target=class_id)
+
+full_path = filtered_pd["filename"].apply(lambda row: os.path.join(base_data_path, row))
+filtered_pd = filtered_pd.assign(filename=full_path)
+
+print(filtered_pd.head(10))
