@@ -34,3 +34,10 @@ testing_wav_data = load_wav_16k_mono(testing_wav_file_name)
 
 plt.plot(testing_wav_data)
 plt.show()
+
+class_map_path = yamnet_model.class_map_path().numpy().decode("utf-8")
+class_names = list(pd.read_csv(class_map_path)["display_name"])
+
+for name in class_names[:20]:
+    print(name)
+print("...")
