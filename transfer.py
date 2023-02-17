@@ -108,3 +108,19 @@ def extract_embedding(wav_data, label, fold):
 # extract embedding
 main_ds = main_ds.map(extract_embedding).unbatch()
 print(main_ds.element_spec)
+
+cached_ds = main_ds.cache()
+train_ds = cached_ds.filter(lambda embedding, label, fold: fold < 4)
+val_ds = cached_ds.filter(lambda embedding, label, fold: fold == 4)
+test_ds = cached_ds.filter(lambda embedding, label, fold: fold == 5)
+
+# remove the folds column now that it's not needed anymore
+remove_fold_column = lambda embedding, label, fold: (embedding, label)
+
+train_ds = train_ds.map(remove_fold_column)
+val_ds = val_ds.map(remove_fold_column)
+test_ds = test_ds.map(remove_fold_column)
+
+train_ds = train_ds.cache().shuffle(1000).batch(32).prefetch(tf.data.AUTOTUNE)
+val_ds = val_ds.cache().batch(32).prefetch(tf.data.AUTOTUNE)
+test_ds = test_ds.cache().batch(32).prefetch(tf.data.AUTOTUNE)
