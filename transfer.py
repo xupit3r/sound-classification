@@ -124,3 +124,31 @@ test_ds = test_ds.map(remove_fold_column)
 train_ds = train_ds.cache().shuffle(1000).batch(32).prefetch(tf.data.AUTOTUNE)
 val_ds = val_ds.cache().batch(32).prefetch(tf.data.AUTOTUNE)
 test_ds = test_ds.cache().batch(32).prefetch(tf.data.AUTOTUNE)
+
+my_model = tf.keras.Sequential(
+    [
+        tf.keras.layers.Input(shape=(1024), dtype=tf.float32, name="input_embedding"),
+        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(len(my_classes)),
+    ],
+    name="transfer_sounds",
+)
+
+my_model.summary()
+
+my_model.compile(
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    optimizer="adam",
+    metrics=["accuracy"],
+)
+
+callback = tf.keras.callbacks.EarlyStopping(
+    monitor="loss", patience=3, restore_best_weights=True
+)
+
+history = my_model.fit(train_ds, epochs=20, validation_data=val_ds, callbacks=callback)
+
+loss, accuracy = my_model.evaluate(test_ds)
+
+print("Loss: ", loss)
+print("Accuracy: ", accuracy)
