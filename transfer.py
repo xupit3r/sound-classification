@@ -7,7 +7,6 @@ import pandas as pd
 
 import tensorflow as tf
 import tensorflow_hub as hub
-import soundfile as sf
 
 yamnet_model_handle = "https://tfhub.dev/google/yamnet/1"
 yamnet_model = hub.load(yamnet_model_handle)
@@ -20,16 +19,15 @@ testing_wav_file_name = tf.keras.utils.get_file(
 )
 
 # Utility functions for loading audio files and making sure the sample rate is correct.
-
-
 @tf.function
 def load_wav_16k_mono(filename):
     """Load a WAV file, convert it to a float tensor, resample to 16 kHz single-channel audio."""
-    signal, sr = sf.read(filename)
-    signal = resample(signal, orig_sr=sr, target_sr=16000)
-
-    # yamnet expects tf.float32 as input...
-    signal = tf.cast(signal, dtype=tf.float32)
+    file_contents = tf.io.read_file(filename)
+    signal, sr = tf.audio.decode_wav(
+        file_contents, desired_channels=1, desired_samples=16000
+    )
+    signal = tf.squeeze(signal, axis=-1)
+    sr = tf.cast(sr, dtype=tf.int64)
     return signal
 
 
@@ -53,13 +51,13 @@ inferred_class = class_names[top_class]
 print(f"The main sound is: {inferred_class}")
 print(f"The embeddings shape: {embeddings.shape}")
 
-# _ = tf.keras.utils.get_file(
-#     "esc-50.zip",
-#     "https://github.com/karoldvl/ESC-50/archive/master.zip",
-#     cache_dir=".datasets",
-#     cache_subdir="tensorflow",
-#     extract=True,
-# )
+_ = tf.keras.utils.get_file(
+    "esc-50.zip",
+    "https://github.com/karoldvl/ESC-50/archive/master.zip",
+    cache_dir=".datasets",
+    cache_subdir="tensorflow",
+    extract=True,
+)
 
 esc50_csv = ".datasets/tensorflow/ESC-50-master/meta/esc50.csv"
 base_data_path = ".datasets/tensorflow/ESC-50-master/audio/"
@@ -79,3 +77,34 @@ full_path = filtered_pd["filename"].apply(lambda row: os.path.join(base_data_pat
 filtered_pd = filtered_pd.assign(filename=full_path)
 
 print(filtered_pd.head(10))
+
+filenames = filtered_pd["filename"]
+targets = filtered_pd["target"]
+folds = filtered_pd["fold"]
+
+main_ds = tf.data.Dataset.from_tensor_slices((filenames, targets, folds))
+
+
+def load_wav_for_map(filename, label, fold):
+    return load_wav_16k_mono(filename), label, fold
+
+
+main_ds = main_ds.map(load_wav_for_map)
+print(main_ds.element_spec)
+
+
+# applies the embedding extraction model to a wav data
+def extract_embedding(wav_data, label, fold):
+    """run YAMNet to extract embedding from the wav data"""
+    scores, embeddings, spectrogram = yamnet_model(wav_data)
+    num_embeddings = tf.shape(embeddings)[0]
+    return (
+        embeddings,
+        tf.repeat(label, num_embeddings),
+        tf.repeat(fold, num_embeddings),
+    )
+
+
+# extract embedding
+main_ds = main_ds.map(extract_embedding).unbatch()
+print(main_ds.element_spec)
